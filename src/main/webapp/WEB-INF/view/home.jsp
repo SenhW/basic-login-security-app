@@ -23,25 +23,31 @@
 		<br><br>
 		Role(s): <security:authentication property="principal.authorities" />
 	</p>
-	
-	<hr>
-	
-	<!-- Add a link to point to /leaders only for managers -->
-	
-	<p>
-		<a href="${pageContext.request.contextPath}/leaders">Leadership Meeting</a>
-		(Only for Managers)
-	</p>
-	
-	<!-- Add a link to point to /systems only for admins -->
-	
-	<p>
-		<a href="${pageContext.request.contextPath}/systems">IT Systems Meeting</a>
-		(Only for Admins)
-	</p>
+
+	<security:authorize access="hasRole('MANAGER')">
 		
-	<hr>
+		<!-- Add a link to point to /leaders only for managers -->
+		
+		<p>
+			<a href="${pageContext.request.contextPath}/leaders">Leadership Meeting</a>
+			(Only for Managers)
+		</p>
 	
+	</security:authorize>
+	
+	<security:authorize access="hasRole('ADMIN')">
+	
+		<!-- Add a link to point to /systems only for admins -->
+		
+		<p>
+			<a href="${pageContext.request.contextPath}/systems">IT Systems Meeting</a>
+			(Only for Admins)
+		</p>
+	
+	</security:authorize>
+
+	<hr>
+		
 	<!-- Add a logout button -->
 	<form:form action="${pageContext.request.contextPath}/logout" 
 			method="POST">
