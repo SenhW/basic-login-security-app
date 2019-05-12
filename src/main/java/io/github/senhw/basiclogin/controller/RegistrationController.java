@@ -1,7 +1,10 @@
 package io.github.senhw.basiclogin.controller;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +26,11 @@ import io.github.senhw.basiclogin.service.UserService;
 @Controller
 @RequestMapping("/register")
 public class RegistrationController {
-	
+
     @Autowired
     private UserService userService;
     private Logger logger = Logger.getLogger(getClass().getName());
+    private Map<String, String> roles;
     
 	@InitBinder
 	public void initBinder(WebDataBinder dataBinder) {
@@ -37,6 +41,10 @@ public class RegistrationController {
 	@GetMapping("/showRegistrationForm")
 	public String showMyLoginPage(Model theModel) {
 		theModel.addAttribute("crmUser", new CrmUser());
+		
+		// add roles to the model for form display
+		theModel.addAttribute("roles", roles);
+		
 		return "registration-form";
 	}
 
@@ -50,7 +58,14 @@ public class RegistrationController {
 		
 		// form validation
 		if (theBindingResult.hasErrors()){
-			 return "registration-form";
+			theModel.addAttribute("crmUser", new CrmUser());
+			
+			// add roles to model for form display
+			theModel.addAttribute("roles", roles);
+			
+			theModel.addAttribute("registrationError", "User name/password can not be empty.");
+			
+			return "registration-form";
 	    }
 
 		// check database if user already exists
@@ -63,9 +78,22 @@ public class RegistrationController {
         	return "registration-form";
         }
         
-        // create user account        						
+        // save user in the database
         userService.save(theCrmUser);
         
         return "registration-completion";		
+	}
+	
+	@PostConstruct
+	protected void loadRoles() {
+		
+		// using hashmap, could also read from database
+		roles = new LinkedHashMap<String, String>();
+		
+		// key: role, value: user display option in menu
+		roles.put("ROLE_EMPLOYEE", "Employee");
+		roles.put("ROLE_MANAGER", "Manager");
+		roles.put("ROLE_ADMIN", "Admin");
+		
 	}
 }
